@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</head>
+<body>
+	<div id="container">
+		
+
+	</div>
+</body>
+<script>
+var chart= Highcharts.chart('container', {
+            chart: {
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Price rate in USD over time'
+            },
+            subtitle: {
+                text: document.ontouchstart === undefined ?
+                    'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+            },
+            xAxis: {
+                type: 'datetime'
+            },
+            yAxis: {
+                title: {
+                    text: 'Bitcoin rate'
+                }
+            },
+            legend: {
+                enabled: true
+            },
+            plotOptions: {
+                area: {
+                    fillColor: {
+                        linearGradient: {
+                            x1: 0,
+                            y1: 0,
+                            x2: 0,
+                            y2: 1
+                        },
+                        stops: [
+                            [0, Highcharts.getOptions().colors[0]],
+                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+                        ]
+                    },
+                    marker: {
+                        radius: 2
+                    },
+                    lineWidth: 1,
+                    states: {
+                        hover: {
+                            lineWidth: 1
+                        }
+                    },
+                    threshold: null
+                }
+            },
+
+            series: [{
+                
+                name: 'USD',
+                data: []
+            },
+            {
+                
+                name: 'EUR',
+                data: []
+            },
+            {
+                
+                name: 'GBP',
+                data: []
+            }]
+        });
+
+setInterval(function(){
+   		let xhr=new XMLHttpRequest;
+   		xhr.addEventListener('load',function(){
+   			let o=(JSON.parse(this.responseText));
+   			chart.series[0].addPoint([(new Date).getTime(),o.bpi.USD.rate_float]);
+   			chart.series[1].addPoint([(new Date).getTime(),o.bpi.EUR.rate_float]);
+   			chart.series[2].addPoint([(new Date).getTime(),o.bpi.GBP.rate_float]);
+
+   		})
+   		xhr.open('GET','https://api.coindesk.com/v1/bpi/currentprice.json');
+   		xhr.send();
+
+   	},4000);
+</script>
